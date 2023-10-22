@@ -1,18 +1,38 @@
+import re
+import json
 
 class MonitorCoordinates:
     def __init__(self, save_file=""):
         self.save_file  = save_file
         self.content    = ""
 
-        self.coordinates = {
-            "x": -1,
-            "y": -1,
-            "z": -1
+        self.mappings = {
+            "dZj": "VoxelX",
+            "IyE": "VoxelY",
+            "uXE": "VoxelZ",
+            "vby": "SolarSystemIndex",
+            "jsv": "PlanetIndex"
         }
 
     def execute(self):
         print("MODE: Monitor Coordinates")
         print(f"Processing save file: {self.save_file}")
+        self.set_content()
+        #print(self.content)
+
+        pattern = r'\{"dZj":-?\d+\,"IyE":-?\d+,"uXE":-?\d+,"vby":-?\d+,"jsv":-?\d+}'
+
+        matches = re.findall(pattern, self.content)
+
+        if len(matches) > 0:
+            data = json.loads(matches[0])
+
+            for key, val in data.items():
+                print(f"{self.mappings[key]}: {val}", end=" ")
+            print("")
+                
+        else:
+            print("No coordinates found")
 
     def set_content(self):
         self.content = ""

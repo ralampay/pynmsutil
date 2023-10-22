@@ -6,6 +6,8 @@ import json
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 
+from modules.monitor_coordinates import MonitorCoordinates
+
 mode_choices = [
     "monitor-coordinates"
 ]
@@ -25,3 +27,6 @@ def main():
         cmd = MonitorCoordinates(save_file=save_file)
 
         cmd.execute()
+
+if __name__ == '__main__':
+    main()
