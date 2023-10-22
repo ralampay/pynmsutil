@@ -1,5 +1,7 @@
 import re
 import json
+import os
+import time
 
 class MonitorCoordinates:
     def __init__(self, save_file=""):
@@ -17,8 +19,23 @@ class MonitorCoordinates:
     def execute(self):
         print("MODE: Monitor Coordinates")
         print(f"Processing save file: {self.save_file}")
+
+        initial_timestamp = os.path.getmtime(self.save_file)
+
+        self.display_coordinates()
+
+        current_timestamp = os.path.getmtime(self.save_file)
+
+        while True:
+            current_timestamp = os.path.getmtime(self.save_file)
+            if current_timestamp != initial_timestamp:
+                self.display_coordinates()
+                initial_timestamp = current_timestamp
+
+            time.sleep(1)
+
+    def display_coordinates(self):
         self.set_content()
-        #print(self.content)
 
         pattern = r'\{"dZj":-?\d+\,"IyE":-?\d+,"uXE":-?\d+,"vby":-?\d+,"jsv":-?\d+}'
 
@@ -33,7 +50,6 @@ class MonitorCoordinates:
                 
         else:
             print("No coordinates found")
-
     def set_content(self):
         self.content = ""
         
