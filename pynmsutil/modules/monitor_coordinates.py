@@ -2,6 +2,11 @@ import re
 import json
 import os
 import time
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from lib.parse_savefile import ParseSavefile
 
 class MonitorCoordinates:
     def __init__(self, save_file=""):
@@ -35,42 +40,24 @@ class MonitorCoordinates:
             time.sleep(1)
 
     def display_coordinates(self):
-        self.set_content()
+        cmd = ParseSavefile(self.save_file)
+        cmd.execute()
 
-        pattern = r'\{"dZj":-?\d+\,"IyE":-?\d+,"uXE":-?\d+,"vby":-?\d+,"jsv":-?\d+}'
+        data = cmd.data
 
-        matches = re.findall(pattern, self.content)
+        player_state = data["6f="]
 
-        if len(matches) > 0:
-            data = json.loads(matches[0])
+        coordinates = player_state["yhJ"]["oZw"]
 
-            for key, val in data.items():
-                print(f"{self.mappings[key]}: {val}", end=" ")
-            print("")
-                
-        else:
-            print("No coordinates found")
-    def set_content(self):
-        self.content = ""
-        
-        try:
-            with open(self.save_file, "rb") as binary_file:
-                while True:
-                    byte = binary_file.read(1)
+        voxel_x             = coordinates["dZj"]
+        voxel_y             = coordinates["IyE"]
+        voxel_z             = coordinates["uXE"]
+        solar_system_index  = coordinates["vby"]
+        planet_index        = coordinates["jsv"]
 
-                    if not byte:
-                        break
+        summary = player_state["n:R"]
 
-                    try:
-                        char = byte.decode("ascii")
-
-                        if char.isprintable():
-                            self.content += char
-                        else:
-                            self.content += "."
-                    except UnicodeDecodeError:
-                        self.content += "."
-        except FileNotFoundError:
-            print(f"Save file {self.save_file} not found.")
-        except Exception as e:
-            print(f"Exception occured: {e}")
+        print(f"Summary: {summary}")
+        print(f"(x, y, z): ({voxel_x}, {voxel_y}, {voxel_z})")
+        print(f"Solar System Index: {solar_system_index}")
+        print(f"Planet Index: {planet_index}")
